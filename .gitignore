@@ -1,0 +1,7 @@
+.*
+!.gitignore
+__pycache__
+*.key
+*.crypt
+*.db
+oldbot.py
