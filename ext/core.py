@@ -4,7 +4,7 @@ import disnake
 from disnake.ext import commands, tasks
 from tools import embeds
 from tools.bot import AdminBot
-from tools.constants import REACTIONS_MESSAGE_ID
+from tools.constants import REACTIONS_MESSAGE_ID, REACTION_ROLES
 
 
 class CoreListeners(commands.Cog):
@@ -43,12 +43,7 @@ Don't forget to check our rules out to avoid unpleased incidents :sunglasses:"
     @commands.Cog.listener("on_button_click")
     async def reaction_role_handler(self, interaction: disnake.MessageInteraction):
         if interaction.message.id == REACTIONS_MESSAGE_ID:
-            d = {
-                "⬆️": 848971201946320916,
-                "🥵": 848971574077292604,
-                "📰": 848971915518541885,
-            }
-            role_id = d[str(interaction.component.emoji)]
+            role_id = REACTION_ROLES[str(interaction.component.emoji)]
             role = self.bot.server.get_role(role_id)
             if not role in interaction.author.roles:
                 await interaction.author.add_roles(role)
