@@ -22,9 +22,9 @@ class BobuxEmbed(Embed):
         if set_author_icon:
             url = None
             if isinstance(inter, ApplicationCommandInteraction):
-                url = inter.author.avatar.url
+                url = inter.author.display_avatar.url
             else:
-                url = inter.avatar.url
+                url = inter.display_avatar.url
             self.set_footer(text=footer_text, icon_url=url)
 
 
