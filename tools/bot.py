@@ -37,6 +37,7 @@ class AdminBot(Bot):
 
     async def close(self):
         await self.db.close()
+        await super().close()
 
     async def on_ready(self):
         print("Bot is ready!")
