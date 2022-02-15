@@ -31,7 +31,7 @@ class Moderation(commands.Cog):
         reason: str = "No reason provided",
     ):
         if inter.author.top_role.position <= user.top_role.position:
-            await inter.send(embed=embeds.error(inter, "You cannot mute someone with higher top role than yours"))
+            await inter.send(embed=embeds.error(inter, "You cannot mute someone with higher top role than yours"), ephemeral=True)
             return
 
         await user.timeout(
@@ -60,7 +60,7 @@ class Moderation(commands.Cog):
         self, inter: disnake.ApplicationCommandInteraction, user: disnake.Member
     ):
         if inter.author.top_role.position <= user.top_role.position:
-            await inter.send(embed=embeds.error(inter, "You cannot unmute someone with higher top role than yours"))
+            await inter.send(embed=embeds.error(inter, "You cannot unmute someone with higher top role than yours"), ephemeral=True)
             return
 
         await user.timeout(
@@ -82,7 +82,7 @@ class Moderation(commands.Cog):
         time: TimeConverter = None,
     ):
         if inter.author.top_role.position <= user.top_role.position:
-            await inter.send(embed=embeds.error(inter, "You cannot ban someone with higher top role than yours"))
+            await inter.send(embed=embeds.error(inter, "You cannot ban someone with higher top role than yours"), ephemeral=True)
             return
 
         await inter.response.defer()
@@ -122,7 +122,7 @@ class Moderation(commands.Cog):
         reason: str = "No reason provided",
     ):
         if inter.author.top_role.position <= user.top_role.position:
-            await inter.send(embed=embeds.error(inter, "You cannot kick someone with higher top role than yours"))
+            await inter.send(embed=embeds.error(inter, "You cannot kick someone with higher top role than yours"), ephemeral=True)
             return
 
         await user.kick(reason=f"{reason} | Responsible moderator: {inter.author}")
