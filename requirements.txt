@@ -3,7 +3,7 @@ aiosignal==1.2.0
 aiosqlite==0.17.0
 async-timeout==4.0.2
 attrs==21.4.0
-cffi==1.15.0
+cffi==1.15.1
 charset-normalizer==2.0.12
 cryptography==36.0.2
 disnake==2.4.0
