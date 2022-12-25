@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "bobuxadmin"
 version = "1.0"
-description = ""
+description = "Moderation bot for bobux bot development server"
 authors = ["Exenifix"]
 readme = "README.md"
 
