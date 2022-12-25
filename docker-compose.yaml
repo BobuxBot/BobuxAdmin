@@ -1,0 +1,9 @@
+services:
+  main:
+    build: .
+    container_name: bobux-admin
+    restart: always
+    volumes:
+      - /home/exenifix/bobux-data/admin:/app/data
+    environment:
+      - TOKEN
