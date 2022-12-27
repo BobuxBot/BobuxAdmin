@@ -1,6 +1,7 @@
-from typing import Any
+from typing import Any, Iterable
 
 import aiosqlite
+from aiosqlite import Row
 from exencolorlogs import FileLogger
 
 from utils import paths
@@ -15,6 +16,7 @@ class Database:
     async def connect(self) -> None:
         self._log.info("Connecting to database...")
         self._con = await aiosqlite.connect(paths.DB)
+        self._cur = await self._con.cursor()
         self._log.ok("Connected to database %s successfully", paths.DB.as_posix())
 
     async def close(self) -> None:
@@ -29,4 +31,18 @@ class Database:
         self._log.ok("Setup script was executed successfully!")
 
     async def execute(self, sql: str, *args: Any) -> aiosqlite.Cursor:
-        return await self._con.execute(sql, args)
+        cur = await self._con.execute(sql, args)
+        await self._con.commit()
+        return cur
+
+    async def fetchrow(self, sql: str, *args: Any) -> Row | None:
+        return await (await self.execute(sql, *args)).fetchone()
+
+    async def fetchval(self, sql: str, *args: Any) -> Any | None:
+        try:
+            return (await self.fetchrow(sql, *args))[0]
+        except IndexError:
+            return None
+
+    async def fetchall(self, sql: str, *args: Any) -> Iterable[Row]:
+        return await (await self.execute(sql, *args)).fetchall()
