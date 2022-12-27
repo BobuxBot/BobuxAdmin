@@ -28,7 +28,7 @@ class moderation(Cog):
         await member.send(
             embed=disnake.Embed(
                 title="Banned",
-                description=f"You have been banned from {inter.guild.name} by {inter.user.mention} for **{reason}**!",
+                description=f"You have been banned from {inter.guild.name} for **{reason}**!",
             )
         )
         await inter.guild.ban(member)
@@ -50,11 +50,10 @@ class moderation(Cog):
         reason: The reason for temp banning
         """
         duration = round(disnake.utils.utcnow().timestamp() + convert(duration))
-
         await inter.send(
             embed=disnake.Embed(
                 title="Member banned",
-                description=f"⚒ | {member.mention} has been wiped out from this server by {inter.user.mention} for **{reason}**!",
+                description=f"{member.mention} has been banned from this server by {inter.user.mention} for **{reason}**!",
                 color=disnake.Color.red(),
             )
         )
@@ -79,14 +78,14 @@ class moderation(Cog):
         await inter.send(
             embed=disnake.Embed(
                 title="Member kicked",
-                description=f"⚒ | {member.mention} has been wiped out from this server by {inter.user.mention} for **{reason}**!",
+                description=f"{member.mention} has been kicked from this server by {inter.user.mention} for **{reason}**!",
                 color=disnake.Color.red(),
             )
         )
         await member.send(
             embed=disnake.Embed(
                 title="Kicked",
-                description=f"You have been kicked from {inter.guild.name} by {inter.user.mention} for **{reason}**!",
+                description=f"You have been kicked from {inter.guild.name} for **{reason}**!",
             )
         )
         await inter.guild.kick(member)
@@ -112,7 +111,7 @@ class moderation(Cog):
         await inter.send(
             embed=disnake.Embed(
                 title="Member timedout",
-                description=f"{member.mention} has been timed out by {inter.user.mention} for {reason}!",
+                description=f"{member.mention} has been timedout by {inter.user.mention}!",
                 color=disnake.Color.green(),
             )
         )
@@ -133,7 +132,7 @@ class moderation(Cog):
         await inter.send(
             embed=disnake.Embed(
                 title="Member untimedout",
-                description=f"{member.mention} has been removed from time out by {inter.user.mention} for {reason}!",
+                description=f"{member.mention} has been untimedout by {inter.user.mention} for {reason}!",
                 color=disnake.Color.green(),
             )
         )
