@@ -3,6 +3,7 @@ from disnake.ext import commands
 
 from utils.bot import Cog
 from utils.converter import TimeConverter as convert
+from utils.errors import HierarchyError
 
 
 class moderation(Cog):
@@ -20,6 +21,15 @@ class moderation(Cog):
         """
         if inter.user.top_role > member.top_role:
             try:
+                await member.send(
+                    embed=disnake.Embed(
+                        title="Banned",
+                        description=f"You have been banned from {inter.guild.name} for **{reason}**!",
+                    )
+                )
+            except disnake.HTTPException:
+                pass
+            finally:
                 await inter.send(
                     embed=disnake.Embed(
                         title="Member banned",
@@ -27,17 +37,9 @@ class moderation(Cog):
                         color=disnake.Color.red(),
                     )
                 )
-                await member.send(
-                    embed=disnake.Embed(
-                        title="Banned",
-                        description=f"You have been banned from {inter.guild.name} for **{reason}**!",
-                    )
-                )
                 await inter.guild.ban(member)
-            except disnake.HTTPException:
-                pass
         else:
-            await inter.send("Your top role is lower than the target's role!")
+            raise HierarchyError
 
     @commands.slash_command(name="tempban")
     async def tempban(
@@ -58,7 +60,15 @@ class moderation(Cog):
         if inter.user.top_role > member.top_role:
 
             try:
-                duration = round(disnake.utils.utcnow().timestamp() + duration)
+                await member.send(
+                    embed=disnake.Embed(
+                        title="Banned",
+                        description=f"You have been banned from {inter.guild.name} for **{reason}**!",
+                    )
+                )
+            except disnake.HTTPException:
+                pass
+            finally:
                 await inter.send(
                     embed=disnake.Embed(
                         title="Member banned",
@@ -66,6 +76,7 @@ class moderation(Cog):
                         color=disnake.Color.red(),
                     )
                 )
+                duration = round(disnake.utils.utcnow().timestamp() + duration)
                 await inter.guild.ban(member)
                 await self.bot.db.execute(
                     f"INSERT INTO tempbans (guild_id, target_id, unban_time) VALUES (?, ?, ?)",
@@ -73,10 +84,8 @@ class moderation(Cog):
                     member.id,
                     duration,
                 )
-            except disnake.HTTPException:
-                pass
         else:
-            await inter.send("You top role is lower than the target's role!")
+            raise HierarchyError
 
     @commands.slash_command(name="kick")
     @commands.has_permissions(kick_members=True)
@@ -93,6 +102,16 @@ class moderation(Cog):
         if inter.user.top_role > member.top_role:
             try:
 
+                await member.send(
+                    embed=disnake.Embed(
+                        title="Kicked",
+                        description=f"You have been kicked from {inter.guild.name} for **{reason}**!",
+                    )
+                )
+
+            except disnake.HTTPException:
+                pass
+            finally:
                 await inter.send(
                     embed=disnake.Embed(
                         title="Member kicked",
@@ -100,17 +119,9 @@ class moderation(Cog):
                         color=disnake.Color.red(),
                     )
                 )
-                await member.send(
-                    embed=disnake.Embed(
-                        title="Kicked",
-                        description=f"You have been kicked from {inter.guild.name} for **{reason}**!",
-                    )
-                )
                 await inter.guild.kick(member)
-            except disnake.HTTPException:
-                pass
         else:
-            await inter.send("Your top role is lower than the target's role!")
+            raise HierarchyError
 
     @commands.slash_command(name="timeout")
     @commands.has_permissions(mute_members=True)
@@ -132,6 +143,10 @@ class moderation(Cog):
         if inter.user.top_role > member.top_role:
             try:
                 await inter.guild.timeout(user=member, duration=duration, reason=reason)
+
+            except disnake.HTTPException:
+                pass
+            finally:
                 await inter.send(
                     embed=disnake.Embed(
                         title="Member timedout",
@@ -139,10 +154,8 @@ class moderation(Cog):
                         color=disnake.Color.green(),
                     )
                 )
-            except disnake.HTTPException:
-                pass
         else:
-            await inter.send("Your top role is lower than the target's role!")
+            raise HierarchyError
 
     @commands.slash_command(name="untimeout")
     @commands.has_permissions(mute_members=True)
@@ -159,6 +172,10 @@ class moderation(Cog):
         if inter.user.top_role > member.top_role:
             try:
                 await inter.guild.timeout(user=member, duration=None, reason=reason)
+
+            except disnake.HTTPException:
+                pass
+            finally:
                 await inter.send(
                     embed=disnake.Embed(
                         title="Member untimedout",
@@ -166,10 +183,8 @@ class moderation(Cog):
                         color=disnake.Color.green(),
                     )
                 )
-            except disnake.HTTPException:
-                pass
         else:
-            await inter.send("Your top role is lower than the target's role!")
+            raise HierarchyError
 
     @commands.slash_command(name="warn")
     async def warn(self, inter: disnake.ApplicationCommandInteraction):
@@ -190,11 +205,15 @@ class moderation(Cog):
         if inter.user.top_role > member.top_role:
             assigned_at = round(disnake.utils.utcnow().timestamp())
             await self.bot.db.execute(
-                f"INSERT INTO warns (target_id, moderator_id, assigned_at, reason) VALUES ({member.id}, {inter.user.id}, {assigned_at}, '{reason}')"
+                f"INSERT INTO warns (target_id, moderator_id, assigned_at, reason) VALUES (?, ?, ?. ?)",
+                member.id,
+                inter.user.id,
+                assigned_at,
+                f"{reason}",
             )
             await inter.send(f"Successfully warned {member.mention}!")
         else:
-            await inter.send("Your top role is lower than the target's role to warn them!")
+            raise HierarchyError
 
     @warn.sub_command(name="clear")
     @commands.has_permissions(moderate_members=True)
@@ -209,7 +228,7 @@ class moderation(Cog):
             await self.bot.db.execute("DELETE FROM warns WHERE target_id = ?", (member.id))
             await inter.send(f"Successfully cleared all warns from {member.mention}")
         else:
-            await inter.send("Your top role is lower than the target's role to clear warns!")
+            raise HierarchyError
 
     @warn.sub_command(name="delete")
     @commands.has_permissions(moderate_members=True)
