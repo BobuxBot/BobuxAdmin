@@ -1,7 +1,9 @@
-import disnake
-from disnake.ext.commands import Converter, converter_method
 from datetime import timedelta
 from re import search
+
+import disnake
+from disnake.ext.commands import Converter, converter_method
+
 from utils.errors import TimeConversionFailure
 
 
