@@ -39,7 +39,7 @@ class moderation(Cog):
                 )
                 await inter.guild.ban(member)
         else:
-            raise HierarchyError
+            raise HierarchyError()
 
     @commands.slash_command(name="tempban")
     async def tempban(
@@ -85,7 +85,7 @@ class moderation(Cog):
                     duration,
                 )
         else:
-            raise HierarchyError
+            raise HierarchyError()
 
     @commands.slash_command(name="kick")
     @commands.has_permissions(kick_members=True)
@@ -121,7 +121,7 @@ class moderation(Cog):
                 )
                 await inter.guild.kick(member)
         else:
-            raise HierarchyError
+            raise HierarchyError()
 
     @commands.slash_command(name="timeout")
     @commands.has_permissions(mute_members=True)
@@ -155,7 +155,7 @@ class moderation(Cog):
                     )
                 )
         else:
-            raise HierarchyError
+            raise HierarchyError()
 
     @commands.slash_command(name="untimeout")
     @commands.has_permissions(mute_members=True)
@@ -184,7 +184,7 @@ class moderation(Cog):
                     )
                 )
         else:
-            raise HierarchyError
+            raise HierarchyError()
 
     @commands.slash_command(name="warn")
     async def warn(self, inter: disnake.ApplicationCommandInteraction):
@@ -213,7 +213,7 @@ class moderation(Cog):
             )
             await inter.send(f"Successfully warned {member.mention}!")
         else:
-            raise HierarchyError
+            raise HierarchyError()
 
     @warn.sub_command(name="clear")
     @commands.has_permissions(moderate_members=True)
@@ -228,7 +228,7 @@ class moderation(Cog):
             await self.bot.db.execute("DELETE FROM warns WHERE target_id = ?", (member.id))
             await inter.send(f"Successfully cleared all warns from {member.mention}")
         else:
-            raise HierarchyError
+            raise HierarchyError()
 
     @warn.sub_command(name="delete")
     @commands.has_permissions(moderate_members=True)
