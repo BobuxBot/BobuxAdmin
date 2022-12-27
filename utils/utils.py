@@ -9,8 +9,7 @@ def join_and(sep: str, iterable: Iterable[str]) -> str:
         return seq[0]
     elif len(seq) == 2:
         return " and ".join(seq)
-    else:
-        return sep.join(seq[:-1]) + " and " + seq[-1]
+    return sep.join(seq[:-1]) + " and " + seq[-1]
 
 
 def n_s(num: int) -> str:
