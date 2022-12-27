@@ -40,7 +40,7 @@ class Database:
     async def fetchval(self, sql: str, *args: Any) -> Any | None:
         try:
             return (await self.fetchrow(sql, *args))[0]
-        except IndexError:
+        except (IndexError, TypeError):
             return None
 
     async def fetchall(self, sql: str, *args: Any) -> Iterable[Row]:

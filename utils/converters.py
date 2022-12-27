@@ -23,4 +23,4 @@ class TimeConverter(Converter, timedelta):
         if delta.total_seconds() == 0:
             raise TimeConversionFailure(argument)
 
-        return delta.total_seconds()
+        return delta

@@ -1,13 +1,12 @@
 CREATE TABLE IF NOT EXISTS warns (
-    id INT PRIMARY KEY AUTOINCREMENT,
-    target_id INTEGER NOT NULL,
-    moderator_id INTEGER NOT NULL,
-    assigned_at INTEGER NOT NULL,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    target_id INT NOT NULL,
+    moderator_id INT NOT NULL,
+    assigned_at INT NOT NULL,
     reason TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS tempbans (
-    guild_id INTEGER NOT NULL,
-    target_id INTEGER NOT NULL,
-    unban_time INTEGER NOT NULL
+    target_id INT NOT NULL,
+    unban_time INT NOT NULL
 );
