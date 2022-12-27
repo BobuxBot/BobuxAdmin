@@ -7,7 +7,7 @@ def convert(timer):
         return -1
     try:
         val = int(timer[:-1])
-    except:
+    except ValueError:
         return -2
 
     return val * time_dict[unit]
