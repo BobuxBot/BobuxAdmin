@@ -20,14 +20,15 @@ class SystemLoops(Cog):
     async def ban_checks(self):
         await self.bot.wait_until_ready()
         present_time = round(disnake.utils.utcnow().timestamp())
-        data = await self.bot.db.fetchrow(
-            "SELECT target_id, guild_id FROM tempbans WHERE unban_time < ?", (present_time)
-        )
+        data = await self.bot.db.fetchrow("SELECT target_id, guild_id FROM tempbans WHERE unban_time < ?", present_time)
 
         if data is None:
             return
         else:
-            guild = self.bot.get_guild(data[1])
-            member = self.bot.get_user(data[0])
-            await guild.unban(member)
-            await self.bot.db.execute("DELETE FROM tempbans WHERE target_id = ?", (member.id))
+            try:
+                guild = self.bot.get_guild(data[1])
+                member = self.bot.get_user(data[0])
+                await guild.unban(member)
+                await self.bot.db.execute("DELETE FROM tempbans WHERE target_id = ?", (member.id))
+            except disnake.HTTPException:
+                pass

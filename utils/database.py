@@ -16,7 +16,6 @@ class Database:
     async def connect(self) -> None:
         self._log.info("Connecting to database...")
         self._con = await aiosqlite.connect(paths.DB)
-        self._cur = await self._con.cursor()
         self._log.ok("Connected to database %s successfully", paths.DB.as_posix())
 
     async def close(self) -> None:

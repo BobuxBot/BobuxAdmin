@@ -2,7 +2,7 @@ import disnake
 from disnake.ext import commands
 
 from utils.bot import Cog
-from utils.checks import convert
+from utils.converter import TimeConverter as convert
 
 
 class moderation(Cog):
@@ -18,27 +18,33 @@ class moderation(Cog):
         member: The member to ban
         reason: The reason for banning
         """
-        await inter.send(
-            embed=disnake.Embed(
-                title="Member banned",
-                description=f"⚒ | {member.mention} has been wiped out from this server by {inter.user.mention} for **{reason}**!",
-                color=disnake.Color.red(),
-            )
-        )
-        await member.send(
-            embed=disnake.Embed(
-                title="Banned",
-                description=f"You have been banned from {inter.guild.name} for **{reason}**!",
-            )
-        )
-        await inter.guild.ban(member)
+        if inter.user.top_role > member.top_role:
+            try:
+                await inter.send(
+                    embed=disnake.Embed(
+                        title="Member banned",
+                        description=f"⚒ | {member.mention} has been banned from this server by {inter.user.mention} for **{reason}**!",
+                        color=disnake.Color.red(),
+                    )
+                )
+                await member.send(
+                    embed=disnake.Embed(
+                        title="Banned",
+                        description=f"You have been banned from {inter.guild.name} for **{reason}**!",
+                    )
+                )
+                await inter.guild.ban(member)
+            except disnake.HTTPException:
+                pass
+        else:
+            await inter.send("Your top role is lower than the target's role!")
 
     @commands.slash_command(name="tempban")
     async def tempban(
         self,
         inter: disnake.ApplicationCommandInteraction,
         member: disnake.Member,
-        duration: str,
+        duration: convert,
         reason: str = "No reason",
     ):
         """Temporary bans a member
@@ -49,19 +55,28 @@ class moderation(Cog):
         duration: The duration for banning. (s, m, h ,d format)
         reason: The reason for temp banning
         """
-        duration = round(disnake.utils.utcnow().timestamp() + convert(duration))
-        await inter.send(
-            embed=disnake.Embed(
-                title="Member banned",
-                description=f"{member.mention} has been banned from this server by {inter.user.mention} for **{reason}**!",
-                color=disnake.Color.red(),
-            )
-        )
+        if inter.user.top_role > member.top_role:
 
-        await inter.guild.ban(member)
-        await self.bot.db.execute(
-            f"INSERT INTO tempbans (guild_id, target_id, unban_time) VALUES ({inter.guild.id}, {member.id}, {duration})"
-        )
+            try:
+                duration = round(disnake.utils.utcnow().timestamp() + duration)
+                await inter.send(
+                    embed=disnake.Embed(
+                        title="Member banned",
+                        description=f"{member.mention} has been banned from this server by {inter.user.mention} for **{reason}**!",
+                        color=disnake.Color.red(),
+                    )
+                )
+                await inter.guild.ban(member)
+                await self.bot.db.execute(
+                    f"INSERT INTO tempbans (guild_id, target_id, unban_time) VALUES (?, ?, ?)",
+                    inter.guild.id,
+                    member.id,
+                    duration,
+                )
+            except disnake.HTTPException:
+                pass
+        else:
+            await inter.send("You top role is lower than the target's role!")
 
     @commands.slash_command(name="kick")
     @commands.has_permissions(kick_members=True)
@@ -75,20 +90,27 @@ class moderation(Cog):
         member: The member to kick
         reason: The reason for kicking
         """
-        await inter.send(
-            embed=disnake.Embed(
-                title="Member kicked",
-                description=f"{member.mention} has been kicked from this server by {inter.user.mention} for **{reason}**!",
-                color=disnake.Color.red(),
-            )
-        )
-        await member.send(
-            embed=disnake.Embed(
-                title="Kicked",
-                description=f"You have been kicked from {inter.guild.name} for **{reason}**!",
-            )
-        )
-        await inter.guild.kick(member)
+        if inter.user.top_role > member.top_role:
+            try:
+
+                await inter.send(
+                    embed=disnake.Embed(
+                        title="Member kicked",
+                        description=f"{member.mention} has been kicked from this server by {inter.user.mention} for **{reason}**!",
+                        color=disnake.Color.red(),
+                    )
+                )
+                await member.send(
+                    embed=disnake.Embed(
+                        title="Kicked",
+                        description=f"You have been kicked from {inter.guild.name} for **{reason}**!",
+                    )
+                )
+                await inter.guild.kick(member)
+            except disnake.HTTPException:
+                pass
+        else:
+            await inter.send("Your top role is lower than the target's role!")
 
     @commands.slash_command(name="timeout")
     @commands.has_permissions(mute_members=True)
@@ -96,7 +118,7 @@ class moderation(Cog):
         self,
         inter: disnake.ApplicationCommandInteraction,
         member: disnake.Member,
-        duration: str,
+        duration: convert,
         reason: str = "No reason",
     ):
         """Timeouts a member
@@ -107,14 +129,20 @@ class moderation(Cog):
         duration: Duration of the timeout (s, m, h, d format)
         reason: The reason for timeouting
         """
-        await inter.guild.timeout(user=member, duration=convert(duration), reason=reason)
-        await inter.send(
-            embed=disnake.Embed(
-                title="Member timedout",
-                description=f"{member.mention} has been timedout by {inter.user.mention}!",
-                color=disnake.Color.green(),
-            )
-        )
+        if inter.user.top_role > member.top_role:
+            try:
+                await inter.guild.timeout(user=member, duration=duration, reason=reason)
+                await inter.send(
+                    embed=disnake.Embed(
+                        title="Member timedout",
+                        description=f"{member.mention} has been timedout by {inter.user.mention}!",
+                        color=disnake.Color.green(),
+                    )
+                )
+            except disnake.HTTPException:
+                pass
+        else:
+            await inter.send("Your top role is lower than the target's role!")
 
     @commands.slash_command(name="untimeout")
     @commands.has_permissions(mute_members=True)
@@ -128,14 +156,20 @@ class moderation(Cog):
         member: The member to untimeout
         reason: The reason for untimeouting
         """
-        await inter.guild.timeout(user=member, duration=None, reason=reason)
-        await inter.send(
-            embed=disnake.Embed(
-                title="Member untimedout",
-                description=f"{member.mention} has been untimedout by {inter.user.mention} for {reason}!",
-                color=disnake.Color.green(),
-            )
-        )
+        if inter.user.top_role > member.top_role:
+            try:
+                await inter.guild.timeout(user=member, duration=None, reason=reason)
+                await inter.send(
+                    embed=disnake.Embed(
+                        title="Member untimedout",
+                        description=f"{member.mention} has been untimedout by {inter.user.mention}!",
+                        color=disnake.Color.green(),
+                    )
+                )
+            except disnake.HTTPException:
+                pass
+        else:
+            await inter.send("Your top role is lower than the target's role!")
 
     @commands.slash_command(name="warn")
     async def warn(self, inter: disnake.ApplicationCommandInteraction):
@@ -153,11 +187,14 @@ class moderation(Cog):
         member: The member to warn
         reason: The reason for warning
         """
-        assigned_at = round(disnake.utils.utcnow().timestamp())
-        await self.bot.db.execute(
-            f"INSERT INTO warns (target_id, moderator_id, assigned_at, reason) VALUES ({member.id}, {inter.user.id}, {assigned_at}, '{reason}')"
-        )
-        await inter.send(f"Successfully warned {member.mention}!")
+        if inter.user.top_role > member.top_role:
+            assigned_at = round(disnake.utils.utcnow().timestamp())
+            await self.bot.db.execute(
+                f"INSERT INTO warns (target_id, moderator_id, assigned_at, reason) VALUES ({member.id}, {inter.user.id}, {assigned_at}, '{reason}')"
+            )
+            await inter.send(f"Successfully warned {member.mention}!")
+        else:
+            await inter.send("Your top role is lower than the target's role to warn them!")
 
     @warn.sub_command(name="clear")
     @commands.has_permissions(moderate_members=True)
@@ -168,8 +205,11 @@ class moderation(Cog):
         ----------
         member: The member to clear all warns
         """
-        await self.bot.db.execute("DELETE FROM warns WHERE target_id = ?", (member.id))
-        await inter.send(f"Successfully cleared all warns from {member.mention}")
+        if inter.user.top_role > member.top_role:
+            await self.bot.db.execute("DELETE FROM warns WHERE target_id = ?", (member.id))
+            await inter.send(f"Successfully cleared all warns from {member.mention}")
+        else:
+            await inter.send("Your top role is lower than the target's role to clear warns!")
 
     @warn.sub_command(name="delete")
     @commands.has_permissions(moderate_members=True)
