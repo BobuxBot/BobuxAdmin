@@ -32,3 +32,12 @@ class SystemLoops(Cog):
             await self.bot.db.execute("DELETE FROM tempbans WHERE target_id = ?", (member.id))
         except disnake.HTTPException:
             pass
+
+        else:
+            try:
+                guild = self.bot.get_guild(data[1])
+                member = self.bot.get_user(data[0])
+                await guild.unban(member)
+                await self.bot.db.execute("DELETE FROM tempbans WHERE target_id = ?", member.id)
+            except disnake.HTTPException:
+                pass
