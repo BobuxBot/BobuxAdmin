@@ -45,3 +45,10 @@ class Database:
 
     async def fetchall(self, sql: str, *args: Any) -> Iterable[Row]:
         return await (await self.execute(sql, *args)).fetchall()
+
+    async def update_bug_points(self, user_id: int, delta: int) -> None:
+        await self.execute("INSERT OR IGNORE INTO bugpoints (id) VALUES ($1)", user_id)
+        await self.execute("UPDATE bugpoints SET points = points + $1 WHERE id = $2", delta, user_id)
+
+    async def get_bug_points(self, user_id: int) -> int:
+        return await self.fetchval("SELECT points FROM bugpoints WHERE id = $1", user_id) or 0

@@ -10,3 +10,8 @@ CREATE TABLE IF NOT EXISTS tempbans (
     target_id INT NOT NULL,
     unban_time INT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS bugpoints (
+    id INT PRIMARY KEY,
+    points INT NOT NULL DEFAULT 0 CHECK (points >= 0)
+);
