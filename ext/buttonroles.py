@@ -1,4 +1,3 @@
-import difflib
 import re
 
 import disnake
@@ -6,6 +5,7 @@ from disnake.ext import commands
 
 from utils.bot import Cog
 from utils.modals import ButtonRolesSetupModal
+from utils.utils import get_closest_button
 
 BUTTONROLE_CUSTOM_ID_PATTERN = re.compile(r"br-(\d{18,19})")
 
@@ -43,6 +43,27 @@ class ButtonRolesManagement(Cog):
         if inter.user.guild_permissions.manage_roles:
             return True
         raise commands.MissingPermissions(["manage_roles"])
+
+    async def check_button(
+        self, inter: disnake.ApplicationCommandInteraction, message: disnake.Message, button_name: str
+    ) -> tuple[disnake.ui.View, disnake.ui.Button] | tuple[None, None]:
+        none = (None,) * 2
+        if message.author.id != self.bot.user.id:
+            await inter.send("Bot cannot edit messages of other users!", ephemeral=True)
+            return none
+        view = disnake.ui.View.from_message(message)
+        try:
+            button = get_closest_button(view, button_name)
+        except IndexError:
+            await inter.send("Could not find any buttons with this name!", ephemeral=True)
+            return none
+        if button is None:
+            await inter.send("There are no buttons on this message!", ephemeral=True)
+            return none
+        if not button.custom_id.startswith("br-"):
+            await inter.send("This button is not a buttonrole button!", ephemeral=True)
+            return none
+        return view, button
 
     @commands.slash_command(name="buttonroles")
     async def buttonroles(self, _):
@@ -96,23 +117,52 @@ class ButtonRolesManagement(Cog):
         button_name: Name of the button to remove
         message: ID/channelID-messageID/URL of message to remove the button from
         """
-        if message.author.id != self.bot.user.id:
-            await inter.send("Bot cannot edit messages of other users!", ephemeral=True)
-            return
         await inter.response.defer()
-        view = disnake.ui.View.from_message(message)
-        buttons: dict[str, disnake.ui.Button] = {c.label: c for c in view.children if isinstance(c, disnake.ui.Button)}
-        if len(buttons) == 0:
-            await inter.send("There are no buttons on this message!", ephemeral=True)
-            return
-        try:
-            button: disnake.ui.Button = buttons[difflib.get_close_matches(button_name, buttons.keys(), n=1)[0]]  # type: ignore     # noqa: E501
-        except IndexError:
-            await inter.send("Could not find any buttons with this name!", ephemeral=True)
-            return
-        if not button.custom_id.startswith("br-"):
-            await inter.send("This button is not a buttonrole button!", ephemeral=True)
+        view, button = await self.check_button(inter, message, button_name)
+        if view is None:
             return
         view.remove_item(button)
         await message.edit(view=view)
         await inter.send("Successfully removed this button from a message!")
+
+    @buttonroles.sub_command(name="enable")
+    async def buttonroles_enable(
+        self, inter: disnake.ApplicationCommandInteraction, button_name: str, message: disnake.Message
+    ):
+        """Enable a disabled role button on a message
+
+        Parameters
+        ----------
+        button_name: Name of the button to enable
+        message: ID/channelID-messageID/URL of message to enable the button on
+        """
+        await inter.response.defer()
+        view, button = await self.check_button(inter, message, button_name)
+        if view is None:
+            return
+        if not button.disabled:
+            await inter.send("This button is already enabled!", ephemeral=True)
+        button.disabled = False
+        await message.edit(view=view)
+        await inter.send("Successfully enabled this button!")
+
+    @buttonroles.sub_command(name="disable")
+    async def buttonroles_disable(
+        self, inter: disnake.ApplicationCommandInteraction, button_name: str, message: disnake.Message
+    ):
+        """Disable an enabled role button on a message
+
+        Parameters
+        ----------
+        button_name: Name of the button to disable
+        message: ID/channelID-messageID/URL of message to disable the button on
+        """
+        await inter.response.defer()
+        view, button = await self.check_button(inter, message, button_name)
+        if view is None:
+            return
+        if button.disabled:
+            await inter.send("This button is already disabled!", ephemeral=True)
+        button.disabled = True
+        await message.edit(view=view)
+        await inter.send("Successfully disabled this button!")
