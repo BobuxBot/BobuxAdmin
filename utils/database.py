@@ -1,7 +1,7 @@
-from sqlite3 import Row
 from typing import Any, Iterable
 
 import aiosqlite
+from aiosqlite import Row
 from exencolorlogs import FileLogger
 
 from utils import paths

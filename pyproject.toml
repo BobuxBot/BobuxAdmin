@@ -12,6 +12,7 @@ aiosqlite = "^0.18.0"
 exencolorlogs = "^1.1.1"
 python-dotenv = "^0.21.0"
 exenenv = "^1.1"
+durations-nlp = "^1.0.1"
 
 
 [tool.poetry.group.dev.dependencies]

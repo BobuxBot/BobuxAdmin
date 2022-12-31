@@ -88,3 +88,7 @@ class Bot(commands.InteractionBot):
 class Cog(commands.Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
+
+    @property
+    def log(self) -> FileLogger:
+        return self.bot.log
