@@ -11,7 +11,7 @@ disnake = "^2.7.0"
 aiosqlite = "^0.18.0"
 exencolorlogs = "^1.1.1"
 python-dotenv = "^0.21.0"
-exenenv = "^1.1"
+exenenv = "^1.2"
 durations-nlp = "^1.0.1"
 
 
