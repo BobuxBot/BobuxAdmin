@@ -52,3 +52,10 @@ class Database:
 
     async def get_bug_points(self, user_id: int) -> int:
         return await self.fetchval("SELECT points FROM bugpoints WHERE id = $1", user_id) or 0
+
+    async def update_suggestion_points(self, user_id: int, delta: int) -> None:
+        await self.execute("INSERT OR IGNORE INTO suggestionpoints (id) VALUES ($1)", user_id)
+        await self.execute("UPDATE suggestionpoints SET points = points + $1 WHERE id = $2", delta, user_id)
+
+    async def get_suggestion_points(self, user_id: int) -> int:
+        return await self.fetchval("SELECT points FROM suggestionpoints WHERE id = $1", user_id) or 0
