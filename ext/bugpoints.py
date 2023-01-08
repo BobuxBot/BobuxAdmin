@@ -2,7 +2,7 @@ import disnake
 from disnake.ext import commands
 
 from utils.bot import Cog
-from utils.constants import BUGPOINTS_ASSIGNERS_ROLES_IDS, BUGPOINTS_ROLES
+from utils.constants import BUGPOINTS_ROLES, POINTS_ASSIGNERS_ROLES_IDS
 from utils.utils import join_and, n_s
 
 
@@ -22,8 +22,9 @@ class BugPoints(Cog):
             return
         await member.add_roles(*roles_to_add)
         await inter.send(
-            f"Congratulations {member.mention}, you got **{join_and('**, **', map(lambda x: x.name, roles_to_add))}**",
-            allowed_mentions=disnake.AllowedMentions.all(),
+            f"Congratulations {member.mention}, you got "
+            f"**{join_and('**, **', map(lambda x: x.mention, roles_to_add))}**",
+            allowed_mentions=disnake.AllowedMentions(users=True, roles=False),
         )
 
     @commands.slash_command(name="bugpoints")
@@ -31,7 +32,7 @@ class BugPoints(Cog):
         ...
 
     @bugpoints.sub_command(name="add")
-    @commands.has_any_role(*BUGPOINTS_ASSIGNERS_ROLES_IDS)
+    @commands.has_any_role(*POINTS_ASSIGNERS_ROLES_IDS)
     async def bugpoints_add(
         self, inter: disnake.ApplicationCommandInteraction, member: disnake.Member, amount: commands.Range[1, 3]
     ):
@@ -48,7 +49,7 @@ class BugPoints(Cog):
         await self._check_bugpoints(inter, member)
 
     @bugpoints.sub_command(name="remove")
-    @commands.has_any_role(*BUGPOINTS_ASSIGNERS_ROLES_IDS)
+    @commands.has_any_role(*POINTS_ASSIGNERS_ROLES_IDS)
     async def bugpoints_remove(
         self, inter: disnake.ApplicationCommandInteraction, member: disnake.Member, amount: commands.Range[1, ...]
     ):
