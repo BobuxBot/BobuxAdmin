@@ -258,14 +258,14 @@ files = [
 
 [[package]]
 name = "disnake"
-version = "2.7.0"
+version = "2.8.1"
 description = "A Python wrapper for the Discord API"
 category = "main"
 optional = false
-python-versions = ">=3.8.0"
+python-versions = ">=3.8"
 files = [
-    {file = "disnake-2.7.0-py3-none-any.whl", hash = "sha256:c13de5fcc6dc5442e6f1f5c62e7f24038ecbe7d629c0b3c5506bf1b3c706c26a"},
-    {file = "disnake-2.7.0.tar.gz", hash = "sha256:414a36c998826df2795aac946f867f3b13b6f15db456913425faa50b311f12d6"},
+    {file = "disnake-2.8.1-py3-none-any.whl", hash = "sha256:54864c115107157c6fadeb6b5811bc73fdcaab1e71c00a3ef757560df3d49128"},
+    {file = "disnake-2.8.1.tar.gz", hash = "sha256:b05cdd1d0adbb06bc0f97906e6b9f0de58d7772bfa675c3866cd965fa5b2767a"},
 ]
 
 [package.dependencies]
@@ -878,4 +878,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4.0"
-content-hash = "ab0593103e875b4af714b4017b03f91d55505eead058cc21c45e6d9befc68bc8"
+content-hash = "b227c80dfb688f0fa6f8786b38776e7473af82b6c52b6bc39363cc6659be33c8"
