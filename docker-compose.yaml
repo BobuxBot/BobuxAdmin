@@ -7,3 +7,4 @@ services:
       - /home/exenifix/bobux-data/admin:/app/data
     environment:
       - TOKEN
+      - GH_TOKEN

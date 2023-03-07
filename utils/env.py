@@ -4,6 +4,7 @@ from exenenv import EnvironmentProfile
 
 class MainEnvironment(EnvironmentProfile):
     TOKEN: str
+    GH_TOKEN: str
 
 
 load_dotenv()
