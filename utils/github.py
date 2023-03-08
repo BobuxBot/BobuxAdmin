@@ -67,11 +67,11 @@ class Github:
     async def get_item(self, repository: str, number: int) -> Item | None:
         try:
             r = await self._session.get(f"/repos/{ORG_NAME}/{repository}/issues/{number}")
-            data = await r.json()
-            item_type = ItemType.PR if "pull_request" in data else ItemType.ISSUE
-            state = State(data["state"])
-            if item_type == ItemType.PR and state == State.CLOSED and data["pull_request"]["merged_at"] is not None:
-                state = State.MERGED
-            return Item(number, data["title"], data["html_url"], state, item_type)
         except ClientResponseError:
             return None
+        data = await r.json()
+        item_type = ItemType.PR if "pull_request" in data else ItemType.ISSUE
+        state = State(data["state"])
+        if item_type == ItemType.PR and state == State.CLOSED and data["pull_request"]["merged_at"] is not None:
+            state = State.MERGED
+        return Item(number, data["title"], data["html_url"], state, item_type)

@@ -27,7 +27,6 @@ class GithubCog(Cog):
             if repo not in ordered:
                 ordered[repo] = set()
             ordered[repo].add(num)
-        print(ordered)
         await msg.add_reaction("<a:loading:1082740409240928316>")
 
         fetched_items = 0
