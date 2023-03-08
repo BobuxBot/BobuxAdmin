@@ -39,7 +39,7 @@ class GithubCog(Cog):
             if fetched_items + len(coros) > 8:
                 coros = coros[: 8 - fetched_items]
             fetched_items += len(coros)
-            items = list(filter(lambda x: x is not None, await asyncio.gather(*coros)))
+            items = list(filter(None, await asyncio.gather(*coros)))
             if len(items) == 0:
                 continue
             embed.add_field(repo, "\n".join(i.get_txt() for i in items), inline=False)
