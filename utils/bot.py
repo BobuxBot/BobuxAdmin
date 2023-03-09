@@ -10,6 +10,7 @@ from exencolorlogs import FileLogger
 
 from utils import env, paths
 from utils.database import Database
+from utils.github import Github
 
 REQUIRED_DIRS = [paths.LOGS]
 for p in REQUIRED_DIRS:
@@ -26,8 +27,10 @@ class Bot(commands.InteractionBot):
             guild_typing=True,
             guilds=True,
             members=True,
+            message_content=True,
         )
         self.db = Database()
+        self.github = Github()
         self.log = FileLogger("BOT", folder=paths.LOGS)
 
         super().__init__(
@@ -39,6 +42,7 @@ class Bot(commands.InteractionBot):
         self.log.info("Starting bot...")
         await self.db.connect()
         await self.db.setup()
+        await self.github.setup()
 
         await super().start(*args, **kwargs)
 
@@ -57,6 +61,8 @@ class Bot(commands.InteractionBot):
     async def close(self) -> None:
         self.log.info("Shutting down...")
         await self.db.close()
+        await self.github.close()
+        await super().close()
         self.log.ok("Bot was shut down successfully")
 
     def auto_setup(self, module_name: str) -> None:
