@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from aiohttp import ClientResponseError, ClientSession
+from aiohttp import ClientSession
 
 from utils import env
 from utils.constants import ORG_NAME
@@ -56,19 +56,20 @@ class Github:
                 "Authorization": f"Bearer {env.main.GH_TOKEN}",
                 "X-GitHub-Api-Version": "2022-11-28",
             },
-            raise_for_status=True,
         )
         async with self._session.get(f"/orgs/{ORG_NAME}/repos") as resp:
+            resp.raise_for_status()
             self.repositories = [r["name"] for r in await resp.json()]
 
     async def close(self) -> None:
         await self._session.close()
 
     async def get_item(self, repository: str, number: int) -> Item | None:
-        try:
-            r = await self._session.get(f"/repos/{ORG_NAME}/{repository}/issues/{number}")
-        except ClientResponseError:
-            return None
+        r = await self._session.get(f"/repos/{ORG_NAME}/{repository}/issues/{number}")
+        if not r.ok:
+            if r.status in (404, 410):
+                return None
+            r.raise_for_status()
         data = await r.json()
         item_type = ItemType.PR if "pull_request" in data else ItemType.ISSUE
         state = State(data["state"])
