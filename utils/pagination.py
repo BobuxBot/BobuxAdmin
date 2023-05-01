@@ -50,6 +50,7 @@ class EmbedPaginator:
         if self._current_page < 1:
             return
         self._current_page -= 1
+        self._view.enable_button(custom_id="forward")
         if self._current_page <= 0:
             self._view.disable_button(custom_id="back")
         await self.update(inter)
@@ -58,6 +59,7 @@ class EmbedPaginator:
         if self._current_page >= self._max_page:
             return
         self._current_page += 1
+        self._view.enable_button(custom_id="back")
         if self._current_page >= self._max_page:
             self._view.disable_button(custom_id="forward")
         await self.update(inter)
@@ -81,6 +83,13 @@ class PaginatorView(disnake.ui.View):
         for child in self.children:
             if isinstance(child, disnake.ui.Button) and any(getattr(child, n) == v for n, v in kwargs.items()):
                 child.disabled = True
+                return
+        raise ButtonNotFound(kwargs)
+
+    def enable_button(self, **kwargs) -> None:
+        for child in self.children:
+            if isinstance(child, disnake.ui.Button) and any(getattr(child, n) == v for n, v in kwargs.items()):
+                child.disabled = False
                 return
         raise ButtonNotFound(kwargs)
 
