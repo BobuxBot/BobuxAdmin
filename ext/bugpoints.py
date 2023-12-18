@@ -34,7 +34,7 @@ class BugPoints(Cog):
     @bugpoints.sub_command(name="add")
     @commands.has_any_role(*POINTS_ASSIGNERS_ROLES_IDS)
     async def bugpoints_add(
-        self, inter: disnake.ApplicationCommandInteraction, member: disnake.Member, amount: commands.Range[1, 3]
+        self, inter: disnake.ApplicationCommandInteraction, member: disnake.Member, amount: commands.Range[1, 8]
     ):
         """Add bugpoints to a user
 
