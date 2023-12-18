@@ -44,9 +44,7 @@ class Item:
 
 class Github:
     _session: ClientSession
-
-    def __init__(self) -> None:
-        self.repositories: list[str] = []  # presumed to be constant, never updates
+    repositories: tuple[str]
 
     async def setup(self) -> None:
         self._session = ClientSession(
@@ -59,7 +57,7 @@ class Github:
         )
         async with self._session.get(f"/orgs/{ORG_NAME}/repos") as resp:
             resp.raise_for_status()
-            self.repositories = [r["name"] for r in await resp.json()]
+            self.repositories = tuple(r["name"] for r in await resp.json())  # type: ignore
 
     async def close(self) -> None:
         await self._session.close()
@@ -76,3 +74,16 @@ class Github:
         if item_type == ItemType.PR and state == State.CLOSED and data["pull_request"]["merged_at"] is not None:
             state = State.MERGED
         return Item(number, data["title"], data["html_url"], state, item_type)
+
+    async def create_issue(self, repository: str, title: str, labels: list[str], body: str | None) -> tuple[str, int]:
+        payload = {"title": title, "labels": labels}
+        if body:
+            payload["body"] = body
+
+        r = await self._session.post(f"/repos/{ORG_NAME}/{repository}/issues", json=payload)
+        r.raise_for_status()
+        data = await r.json()
+        url: str = data["html_url"]
+        number: int = data["number"]
+
+        return url, number

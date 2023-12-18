@@ -1,12 +1,27 @@
 import asyncio
 import re
+from enum import StrEnum
 
+import aiohttp
 import disnake
+from disnake.ext import commands
 
 from utils.bot import Cog
 from utils.constants import DEVELOPER_ROLE_ID
 
 REPO_TAG_PATTERN = re.compile(r"([-A-Za-z0-9_]*)#(\d+)")
+
+
+class Majority(StrEnum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRIT = "CRIT"
+
+
+class DeploymentVersion(StrEnum):
+    BETA = "beta"
+    PRODUCTION = "production"
 
 
 class GithubCog(Cog):
@@ -45,3 +60,56 @@ class GithubCog(Cog):
         await msg.clear_reactions()
         if len(embed.fields) > 0:
             await msg.reply(embed=embed, fail_if_not_exists=False)
+
+    @commands.slash_command(name="bugreport")
+    @commands.has_role(DEVELOPER_ROLE_ID)
+    async def bugreport(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        title: str,
+        majority: Majority,
+        version: DeploymentVersion,
+        body: str | None = None,
+    ):
+        """
+        Create an issue on github labeled as bug
+
+        Parameters
+        ----------
+        title: Issue title
+        majority: Majority of the bug
+        version: Production | beta
+        body: Issue body (recommended to edit in github after creation instead)
+        """
+
+        await inter.response.defer()
+
+        try:
+            url, number = await self.bot.github.create_issue(
+                "Bobux", title, ["bug", f"majority: {majority}", version], body
+            )
+        except aiohttp.ClientResponseError as e:
+            await inter.send(f"Failed to create issue: {e.status} {e.message}")
+        else:
+            await inter.send(f"Successfully created new issue: [#{number}]({url})")
+
+    @commands.slash_command(name="suggestion")
+    @commands.has_role(DEVELOPER_ROLE_ID)
+    async def suggestion(self, inter: disnake.ApplicationCommandInteraction, title: str, body: str | None = None):
+        """
+        Create an issue on github labeled as enhancement
+
+        Parameters
+        ----------
+        title: Issue title
+        body: Issue body (recommended to edit in github after creation instead)
+        """
+
+        await inter.response.defer()
+
+        try:
+            url, number = await self.bot.github.create_issue("Bobux", title, ["enhancement"], body)
+        except aiohttp.ClientResponseError as e:
+            await inter.send(f"Failed to create issue: {e.status} {e.message}")
+        else:
+            await inter.send(f"Successfully created new issue: [#{number}]({url})")

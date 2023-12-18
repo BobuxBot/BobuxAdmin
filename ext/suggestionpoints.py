@@ -34,7 +34,7 @@ class SuggestionPoints(Cog):
     @suggestionpoints.sub_command(name="add")
     @commands.has_any_role(*POINTS_ASSIGNERS_ROLES_IDS)
     async def suggestionpoints_add(
-        self, inter: disnake.ApplicationCommandInteraction, member: disnake.Member, amount: commands.Range[1, 10]
+        self, inter: disnake.ApplicationCommandInteraction, member: disnake.Member, amount: commands.Range[int, 1, 10]
     ):
         """Add suggestion points to a user
 
@@ -51,7 +51,7 @@ class SuggestionPoints(Cog):
     @suggestionpoints.sub_command(name="remove")
     @commands.has_any_role(*POINTS_ASSIGNERS_ROLES_IDS)
     async def suggestionpoints_remove(
-        self, inter: disnake.ApplicationCommandInteraction, member: disnake.Member, amount: commands.Range[1, ...]
+        self, inter: disnake.ApplicationCommandInteraction, member: disnake.Member, amount: commands.Range[int, 1, ...]
     ):
         """Remove suggestion points from a user
 
