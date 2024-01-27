@@ -86,18 +86,18 @@ class GithubCog(Cog):
 
         try:
             url, number = await self.bot.github.create_issue(
-                "Bobux", title, ["bug", f"majority: {majority}", version], body
+                "Bobux", title, ["type: bug", f"majority: {majority}", f"rel: {version}"], body
             )
         except aiohttp.ClientResponseError as e:
             await inter.send(f"Failed to create issue: {e.status} {e.message}")
         else:
             await inter.send(f"Successfully created new issue: [#{number}]({url})")
 
-    @commands.slash_command(name="suggestion")
+    @commands.slash_command(name="idea")
     @commands.has_role(DEVELOPER_ROLE_ID)
-    async def suggestion(self, inter: disnake.ApplicationCommandInteraction, title: str, body: str | None = None):
+    async def idea(self, inter: disnake.ApplicationCommandInteraction, title: str, body: str | None = None):
         """
-        Create an issue on github labeled as enhancement
+        Create an issue on github labeled as idea
 
         Parameters
         ----------
@@ -108,7 +108,7 @@ class GithubCog(Cog):
         await inter.response.defer()
 
         try:
-            url, number = await self.bot.github.create_issue("Bobux", title, ["enhancement"], body)
+            url, number = await self.bot.github.create_issue("Bobux", title, ["type: idea"], body)
         except aiohttp.ClientResponseError as e:
             await inter.send(f"Failed to create issue: {e.status} {e.message}")
         else:
